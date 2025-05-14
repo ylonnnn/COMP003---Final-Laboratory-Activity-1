@@ -1,6 +1,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 
@@ -11,9 +12,14 @@ void displayWelcomeMessage() {
 vector<float> promptTemperatures() {
 	int n = 0;
 
-	while (n < 1 || cin.fail()) {
+	while (n < 1) {
 		cout << "Enter the number of temperature readings: ";
 		cin >> n;
+
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(10'000, '\n');
+		}
 	}
 
 	vector<float> temperatures(n);
@@ -33,14 +39,19 @@ float calculateAverage(const vector<float> &vec) {
 	return sum / vec.size();
 }
 
+int readingCount(const vector<float> &vec, int basis = 40) {
+	int count = 0;
+	for (const float &val : vec) if (val > basis) count++;
+
+	return count;
+}
+
 void flSort(vector<float> &vec) {
 	int size = vec.size();
 
 	for (int i = 0; i < size; i++) {
 		for (int j = i; j < size; j++) {
-			int fli = vec[i], flj = vec[j];
-
-			if (flj < fli) {
+			if (vec[j] < vec[i]) {
 				swap(vec[i], vec[j]);
 			}
 		}
@@ -52,7 +63,7 @@ int main() {
 	displayWelcomeMessage();
 
 	for (int i = 0; ; i++) {
-		cout << "Day #" << (i + 1) << ": ";
+		cout << "Day #" << (i + 1) << "\n";
 
 		// Prompt for the number of temperature readings to capture, and
 		// Prompt for the temperature readings
@@ -68,8 +79,12 @@ int main() {
 		float highest = temperatures[temperatures.size() - 1], lowest = temperatures[0];
 
 		// Display the necessary output
-		cout << "\n";
+		cout << fixed << setprecision(2) << "\n";
 		cout << "The Average Temperature Readings of the Day: " << averageTemperature << "\n";
+
+		int readingBasis = 40;
+		cout << "The Temperature Readings Beyond " << readingBasis << " degrees Celsius: " << readingCount(temperatures, readingBasis) << "\n";
+
 		cout << "The Temperatures Sorted in Ascending Order: ";
 
 		for (const float &temperature : temperatures) cout << temperature << ", ";
